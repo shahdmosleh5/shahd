@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="website icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2657/2657051.png">
+    <title>Debt to Assets Ratio Analysis</title>
+    <link rel="stylesheet" href="css_analysis.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Adding custom CSS for positive and negative analysis */
+        .positive-analysis {
+            color: rgb(55, 237, 55);
+            font-weight: bold;
+        }
+
+        .negative-analysis {
+            color: red;
+            font-weight: bold;
+        }
+
+        .neutral-analysis {
+            color: orange;
+        }
+
+        /* Styling the manager's comment section */
+        .manager-comment {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #00c3ff;
+            color: #fff;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="excel.html" class="back-btn">&larr; Back</a>
+        <h1>Debt to Assets Ratio Analysis</h1>
+        <div class="canvas-container">
+            <canvas id="debtToAssetsChart"></canvas>
+        </div>
+        <div class="analysis-section">
+            <h2>Deep Analysis</h2>
+            <p id="debtToAssets-analysis">Analyzing data...</p>
+        </div>
+
+        <!-- Manager's Comment Section -->
+        <div class="manager-comment" id="manager-comment">
+            <!-- The manager's comment will be inserted here -->
+        </div>
+
+        <div class="footer">
+            <p>Need help? <a href="Financial Statements Analysis Made Easy.html">Contact Support</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Default values for Debt to Assets Ratio
+            const debtToAssets2021 = 35.2;  // Example value for 2021
+            const debtToAssets2022 = 28.9;  // Provided value for 2022
+            // Retrieve Debt to Assets Ratio value for 2023 from localStorage (fallback to 0 if not set)
+            const debtToAssets2023 = parseFloat(localStorage.getItem('debtToAssets2023')) || 0;
+
+            // Data for the chart
+            const labels = ['2021', '2022', '2023'];
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Debt to Assets Ratio (%)',
+                    data: [debtToAssets2021, debtToAssets2022, debtToAssets2023],
+                    backgroundColor: 'rgba(0, 195, 255, 0.6)',
+                    borderColor: '#00c3ff',
+                    borderWidth: 2,
+                    hoverBackgroundColor: 'rgba(0, 195, 255, 0.8)'
+                }]
+            };
+
+            // Chart configuration
+            const config = {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#fff',
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        },
+                        y: {
+                            ticks: { color: '#fff', callback: (value) => value + '%' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        }
+                    }
+                }
+            };
+
+            // Render the chart
+            const ctx = document.getElementById('debtToAssetsChart').getContext('2d');
+            new Chart(ctx, config);
+
+            // Analysis section
+            let analysis = '';
+            let analysisClass = '';
+
+            // Detailed Analysis between 2022 and 2023
+            if (debtToAssets2023 < debtToAssets2022) {
+                const decrease = ((debtToAssets2022 - debtToAssets2023) / debtToAssets2022) * 100;
+                analysis += `In 2023, the Debt to Assets Ratio decreased compared to 2022, with a drop of ${decrease.toFixed(2)}%. This suggests that the company has improved its ability to reduce reliance on debt, potentially increasing its financial stability and reducing risk. `;
+                analysisClass = 'positive-analysis';
+            } else if (debtToAssets2023 > debtToAssets2022) {
+                const increase = ((debtToAssets2023 - debtToAssets2022) / debtToAssets2022) * 100;
+                analysis += `In 2023, the Debt to Assets Ratio increased compared to 2022, with an increase of ${increase.toFixed(2)}%. This indicates that the company is taking on more debt, which could signal a higher reliance on borrowed capital. While this may indicate investment in expansion, it also increases financial risk. `;
+                analysisClass = 'negative-analysis';
+            } else {
+                analysis += `In 2023, the Debt to Assets Ratio remained the same as 2022. This could indicate that the company has maintained a consistent balance between its debts and assets, suggesting a cautious and balanced approach to debt management. `;
+                analysisClass = 'neutral-analysis';
+            }
+
+            // Detailed Analysis between 2021 and 2022
+            if (debtToAssets2022 < debtToAssets2021) {
+                const decrease = ((debtToAssets2021 - debtToAssets2022) / debtToAssets2021) * 100;
+                analysis += `The trend from 2021 to 2022 showed a decline of ${decrease.toFixed(2)}%. This suggests that the company was able to reduce its reliance on debt, which is a positive indicator of improved financial health and a lower risk profile. `;
+            } else if (debtToAssets2022 > debtToAssets2021) {
+                const increase = ((debtToAssets2022 - debtToAssets2021) / debtToAssets2021) * 100;
+                analysis += `The trend from 2021 to 2022 was negative, with an increase of ${increase.toFixed(2)}%. This may indicate that the company has taken on more debt, which could signal increased financial leverage. While this might indicate investment or expansion efforts, it also increases the risk associated with debt. `;
+            } else {
+                analysis += `The Debt to Assets Ratio remained the same from 2021 to 2022. This suggests a steady approach to managing debt and assets without significant changes in the company's financial strategy. `;
+            }
+
+            // Update the analysis section with the correct class for styling
+            const analysisElement = document.getElementById('debtToAssets-analysis');
+            analysisElement.textContent = analysis;
+            analysisElement.className = analysisClass;
+
+            // Manager's Comment section
+            let managerComment = '';
+            if (debtToAssets2023 < 25) {
+                managerComment = `The company has reduced its Debt to Assets Ratio in 2023, indicating stronger financial stability and reduced reliance on debt. This is a positive sign for future growth, suggesting that the company is managing its financial risk effectively.`;
+            } else if (debtToAssets2023 > debtToAssets2022) {
+                managerComment = `An increase in the Debt to Assets Ratio in 2023 indicates higher leverage and a higher dependency on debt. This may be a potential risk to monitor closely, as increased debt can lead to financial strain if not managed properly.`;
+            } else {
+                managerComment = `The Debt to Assets Ratio remained stable, which indicates a balanced approach between debt and assets. However, continued monitoring of debt levels is advised to ensure that the company does not become over-leveraged.`;
+            }
+
+            // Insert manager comment
+            document.getElementById('manager-comment').textContent = managerComment;
+        });
+    </script>
+
+</body>
+</html>

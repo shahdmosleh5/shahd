@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="website icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2657/2657051.png">
+    <title>Cash Ratio Analysis</title>
+    <link rel="stylesheet" href="css_analysis.css">
+    <!-- Include Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- عنوان الصفحة -->
+        <h1>Cash Ratio Analysis</h1>
+
+        <!-- الرسم البياني -->
+        <div class="canvas-container">
+            <h2>Graphical Representation</h2>
+            <canvas id="cashRatioChart"></canvas>
+        </div>
+
+
+        <!-- تحليل النسبة -->
+        <div class="analysis-section">
+            <h2>Overview</h2>
+            <h4 id="Overview"></h4>
+            </p>
+        </div>
+
+        <!-- رأي المدير -->
+        <div class="manager-comment">
+            <h3>Financial Manager's Comment:</h3>
+            <p id="ManagerComment"></p>
+        </div>
+
+        <!-- رأي المستثمر -->
+        <div class="investor-comment">
+            <h3>Investor's Perspective:</h3>
+            <p id="InvestorPerspective"></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Need help? <a href="Financial Statements Analysis Made Easy.html">Contact Support</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // نسب السنوات السابقة
+            const CashRatio2019 = 0.8;
+            const CashRatio2020 = 0.3;
+            const CashRatio2021 = 0.4;
+            const CashRatio2022 = 0.29;
+            const CashRatio2023 = parseFloat(localStorage.getItem('CashRatio2023'));
+            const cashAndCashEquivalents2023 = parseFloat(localStorage.getItem('cashAndCashEquivalents'));
+            const cashAndCashEquivalents2022 = 497647;
+            const currentLiabilities2023 = parseFloat(localStorage.getItem('currentLiabilities'));
+            const currentLiabilities2022 = 1690046
+
+            // تحليل النسبة بناءً على قيم السنوات السابقة
+            const analysisSection = document.getElementById('Overview');
+            let analysisText = ` The Cash Ratio for 2023 is <strong>${CashRatio2023}</strong>. `;
+            let analysisStyle = '';
+            let analysisBack = '';
+
+            if (CashRatio2023 > CashRatio2022) {
+                analysisText += `This increase compared to <strong>2022 (${CashRatio2022})</strong> indicates improved liquidity. Purchasing A land have reduced cash and cash equivalents in <strong>2022</strong>, contributing to the lower cash ratio of <strong>0.29 </strong>. This significant cash outflow have temporarily weakened the company's liquidity in 2022.`;
+
+                if (cashAndCashEquivalents2023 > cashAndCashEquivalents2022) {
+                    analysisText += 'The reason for the improvement in the financial ratio in <strong>2023</strong> is the increase in cash and cash equivalents compared to last year. ';
+                }
+
+                if (currentLiabilities2022 < currentLiabilities2023) {
+                    analysisText += 'And The reason for the improvement in the financial ratio is the decrease in Current Liabilities compared to last year. ';
+                }
+
+                // تحليل إذا كانت النسبة مرتفعة بشكل غير طبيعي
+                if (CashRatio2023 > 1) {
+                    analysisText += `A high Cash Ratio like this may suggest that the company is holding excessive cash, potentially leading to underutilized resources. `;
+                } else if (CashRatio2023 > 0.7) {
+                    analysisText += `This level of liquidity is generally healthy and indicates the company can cover its short-term liabilities comfortably. `;
+                }
+
+
+                // لا داعي للحديث عن شراء الأرض إذا كانت النسبة مرتفعة
+            } else {
+                analysisText += `This decrease compared to 2022 (${CashRatio2022}) suggests reduced liquidity. `;
+
+                // إذا كانت النسبة منخفضة
+                if (CashRatio2023 < 0.3) {
+                    analysisText += `A Cash Ratio below 0.3 may indicate a potential liquidity risk, as the company might struggle to cover short-term liabilities using only cash. `;
+                } else if (CashRatio2023 < CashRatio2022 && CashRatio2022 > 0.4) {
+                    analysisText += `The decline from the previous year's liquidity levels might be due to factors such as significant investments or operational challenges. `;
+                }
+            }
+
+            // إضافة تفسير ديناميكي عن شراء الأرض إذا كانت النسبة منخفضة
+            if (CashRatio2023 < CashRatio2022 && CashRatio2022 < 0.3) {
+                analysisText += `The reduced liquidity in 2022 was partly due to a strategic investment in purchasing land, which reduced cash reserves temporarily. `;
+            }
+
+            if (CashRatio2023 > 0.5 && CashRatio2023 < 0.7) {
+                analysisText += 'This range is logical and reasonable, meaning that the company can cover half or slightly more of its short-term liabilities using liquid assets. However, it should be worked on and improved.'
+            } 
+
+            if (CashRatio2023 < 0.5) {
+                analysisText += 'Current Cash Ratio Indicates that the company may have difficulty paying its short-term obligations using only liquid assets,which increasing financial risk.'
+            }
+
+            if (CashRatio2023 > 1){
+                analysisStyle = '#39ff14'
+            } else if (CashRatio2023 > 0.7){
+                analysisStyle = 'orange'
+            } else {
+                analysisStyle = 'red'
+            }
+
+            if (analysisStyle === "red") {
+                analysisBack = "#e57373"
+            } else {
+                analysisBack = ""
+            }
+
+            analysisSection.innerHTML = analysisText;
+            analysisSection.style.color = analysisStyle;
+            analysisSection.style.backgroundColor = analysisBack;
+            analysisSection.style.padding = "10px"; // حواف داخلية
+            analysisSection.style.borderRadius = "5px";
+
+
+            const managerSection = document.getElementById('ManagerComment');
+            let manager = '';
+            if (CashRatio2023 < 1) { 
+                manager += 'The cash ratio is slightly below 1, which is typical for many companies. However, it suggests the company could consider optimizing its cash reserves to ensure better coverage for emergencies.'
+            } else {
+                manager += 'The cash ratio is above 1, it indicates that the company has more than enough liquid assets to cover its short-term liabilities, which is a sign of financial strength and good liquidity management.'
+            }
+            managerSection.innerHTML = manager;
+
+            const investorSection = document.getElementById('InvestorPerspective');
+            let investor = '';
+            if (CashRatio2023 > 1) { 
+                investor += 'A cash ratio above 1 signals that the company has more than enough liquid assets to cover its short-term liabilities. This demonstrates strong liquidity and financial stability, which is generally viewed positively by investors. However, excessive cash reserves may suggest inefficiency in utilizing funds for growth opportunities.'
+            } else if (0.5 < CashRatio2023 && CashRatio2023 < 1) {
+                investor += 'A cash ratio between 0.5 and 1 shows that the company has a balanced approach to liquidity, with sufficient liquid assets to cover most, but not all, short-term obligations. Investors may view this as a positive sign of financial health, as the company can manage its obligations while still having some room to reinvest in operations or growth.'
+            } else if (CashRatio2023 < 0.5) {
+                investor += 'Cash ratio indicates that the company may not have enough liquid assets to cover its short-term liabilities, which could raise concerns about its ability to meet financial obligations without relying on additional financing or asset liquidation. Investors may see this as a potential risk.'
+            }
+
+
+
+            investorSection.innerHTML = investor;
+
+
+
+            // إعداد الرسم البياني
+            const ctx = document.getElementById('cashRatioChart').getContext('2d');
+            const cashRatioChart = new Chart(ctx, {
+                type: 'line',  // Added missing comma here
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023'],
+                    datasets: [{
+                        label: 'Cash Ratio',
+                        data: [CashRatio2019, CashRatio2020, CashRatio2021, CashRatio2022, CashRatio2023],
+                        borderColor: '#00c3ff',
+                        backgroundColor: 'rgba(0, 195, 255, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#00c3ff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { color: '#fff' } },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleColor: '#00c3ff',
+                            bodyColor: '#fff',
+                            borderWidth: 1,
+                            borderColor: '#00c3ff'
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' }, beginAtZero: true }
+                    }
+                }
+            });
+        });
+        </script>
+</body>
+</html>

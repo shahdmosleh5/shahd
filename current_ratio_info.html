@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="website icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2657/2657051.png">
+    <title>Current Ratio Analysis</title>
+    <link rel="stylesheet" href="css_analysis.css">
+    <!-- Include Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- عنوان الصفحة -->
+        <h1>Current Ratio Analysis</h1>
+
+        <!-- الرسم البياني -->
+        <div class="canvas-container">
+            <h2>Graphical Representation</h2>
+            <canvas id="currentRatioChart"></canvas>
+        </div>
+
+        <!-- تحليل النسبة -->
+        <div class="analysis-section">
+            <h2>Overview</h2>
+            <h4 id="Overview"></h4>
+        </div>
+
+        <!-- رأي المدير -->
+        <div class="manager-comment">
+            <h3>Financial Manager's Comment:</h3>
+            <p id="ManagerComment"></p>
+        </div>
+
+        <!-- رأي المستثمر -->
+        <div class="investor-comment">
+            <h3>Investor's Perspective:</h3>
+            <p id="InvestorPerspective"></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Need help? <a href="Financial Statements Analysis Made Easy.html">Contact Support</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // نسب السنوات السابقة
+            const currentRatio2019 = 3.28;
+            const currentRatio2020 = 3.206;
+            const currentRatio2021 = 3.741;
+            const currentRatio2022 = 3.206;
+            const currentRatio2023 = parseFloat(localStorage.getItem('CurrentRatio2023'));
+            const currentAssets2023 = parseFloat(localStorage.getItem('currentAssets'));
+            const currentAssets2022 = 5419069;
+            const currentLiabilities2023 = parseFloat(localStorage.getItem('currentLiabilities'));
+            const currentLiabilities2022 = 1690046;
+
+            // تحليل النسبة بناءً على قيم السنوات السابقة
+            const analysisSection = document.getElementById('Overview');
+            let analysisText = `The Current Ratio for 2023 is <strong>${currentRatio2023}</strong>.`;
+            let analysisStyle = '';
+            let analysisBack = '';
+
+            if (currentRatio2023 > currentRatio2022) {
+                analysisText += ` This increase compared to <strong>2022 (${currentRatio2022})</strong> indicates improved ability to cover short-term liabilities with current assets.`;
+
+                if (currentAssets2023 > currentAssets2022) {
+                    analysisText += ' The reason for the improvement in the financial ratio in <strong>2023</strong> is the increase in current assets compared to last year. ';
+                }
+
+                if (currentLiabilities2023 < currentLiabilities2022) {
+                    analysisText += ' The decrease in current liabilities also contributed to the improvement in the ratio. ';
+                }
+
+                if (currentRatio2023 > 2) {
+                    analysisText += `A high Current Ratio like this (greater than 2) may suggest that the company is holding excess current assets, which might be underutilized.`;
+                } else if (currentRatio2023 > 1) {
+                    analysisText += `This level of liquidity is considered healthy and shows the company can cover its short-term obligations comfortably.`;
+                }
+            } else {
+                analysisText += ` This decrease compared to <strong>2022 (${currentRatio2022})</strong> suggests reduced liquidity.`;
+
+                if (currentRatio2023 < 1) {
+                    analysisText += `A Current Ratio below 1 may indicate potential liquidity issues, as the company may not be able to cover its short-term liabilities using its current assets.`;
+                } else if (currentRatio2023 < currentRatio2022 && currentRatio2022 > 1.2) {
+                    analysisText += `The decline from the previous year's liquidity levels could be due to operational challenges or changes in business conditions.`;
+                }
+            }
+
+            if (currentRatio2023 > 1.5){
+                analysisStyle = '#39ff14'
+            } else if (currentRatio2023 > 0.9){
+                analysisStyle = 'orange'
+            } else {
+                analysisStyle = 'red'
+            }
+
+            if (analysisStyle === "red") {
+                analysisBack = "#e57373"
+            } else {
+                analysisBack = ""
+            }
+
+            analysisSection.innerHTML = analysisText;
+            analysisSection.style.color = analysisStyle;
+            analysisSection.style.backgroundColor = analysisBack;
+
+
+
+            const managerSection = document.getElementById('ManagerComment');
+            let manager = '';
+            if (currentRatio2023 < 1) {
+                manager += 'The current ratio is below 1, which suggests the company may have difficulty meeting its short-term obligations with its current assets. Management should look into improving liquidity.';
+            } else if (currentRatio2023 > 1 && currentRatio2023 < 2) {
+                manager += 'The current ratio is above 1, indicating that the company has sufficient current assets to meet its short-term liabilities. This is a positive sign of liquidity management.';
+            } else if (currentRatio2023 > 2) {
+                manager += 'While a high current ratio is generally positive, a ratio this high might indicate inefficiencies in using current assets. Excess cash, receivables, or inventory may be tying up resources that could be invested elsewhere for better returns'
+            }
+            managerSection.innerHTML = manager;
+
+            const investorSection = document.getElementById('InvestorPerspective');
+            let investor = '';
+            if (currentRatio2023 > 2) {
+                investor += 'A current ratio above 2 suggests the company has ample current assets to cover short-term liabilities. While this shows good liquidity, it may indicate the company is not making full use of its assets for growth opportunities.';
+            } else if (1.5 < currentRatio2023 && currentRatio2023 < 2) {
+                investor += 'A current ratio between 1.5 and 2 shows the company can comfortably cover its short-term obligations, while maintaining a reasonable level of liquidity.';
+            } else if (currentRatio2023 < 1) {
+                investor += 'A current ratio below 1 is a potential red flag for investors, as it indicates the company might struggle to meet its short-term obligations. This raises concerns about financial stability.';
+            }
+            investorSection.innerHTML = investor;
+
+            // إعداد الرسم البياني
+            const ctx = document.getElementById('currentRatioChart').getContext('2d');
+            const currentRatioChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023'],
+                    datasets: [{
+                        label: 'Current Ratio',
+                        data: [currentRatio2019, currentRatio2020, currentRatio2021, currentRatio2022, currentRatio2023],
+                        borderColor: '#00c3ff',
+                        backgroundColor: 'rgba(0, 195, 255, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#00c3ff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { color: '#fff' } },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleColor: '#00c3ff',
+                            bodyColor: '#fff',
+                            borderWidth: 1,
+                            borderColor: '#00c3ff'
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' }, beginAtZero: true }
+                    }
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

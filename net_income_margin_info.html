@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="website icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2657/2657051.png">
+    <title>Comprehensive Financial Analysis</title>
+    <link rel="stylesheet" href="css_analysis.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .positive-analysis {
+            color: rgb(55, 237, 55);
+            font-weight: bold;
+        }
+
+        .negative-analysis {
+            color: #FF6347;
+            font-weight: bold;
+        }
+
+        .neutral-analysis {
+            color: orange;
+        }
+
+        .manager-comment {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #00c3ff;
+            color: #fff;
+            font-size: 1.2em;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="excel.html" class="back-btn">&larr; Back</a>
+        <h1>Net Income Margin (NIM) Analysis:</h1>
+
+        <!-- First Chart: NIM Only -->
+        <div class="canvas-container">
+            <canvas id="nimChart"></canvas>
+        </div>
+        <div class="analysis-section">
+            <h2>Net Income Margin (NIM) Analysis</h2>
+            <p id="nim-analysis">Analyzing NIM...</p>
+        </div>
+
+        <!-- Second Chart: Comparison of NIM, OPM, and GPM -->
+        <div class="canvas-container">
+            <canvas id="combinedChart"></canvas>
+        </div>
+        <div class="analysis-section">
+            <h2>Comparison of NIM, OPM & GPM</h2>
+            <p id="combined-analysis">Analyzing the differences...</p>
+        </div>
+
+        <!-- Third Chart: Comparison of APC vs Competitors -->
+        <div class="canvas-container">
+            <canvas id="apcCompetitorsChart"></canvas>
+        </div>
+        <div class="analysis-section">
+            <h2>APC vs Competitors Comparison</h2>
+            <p id="apc-analysis">Analyzing APC vs Competitors...</p>
+        </div>
+
+        <!-- Manager's Comment Section -->
+        <div class="manager-comment" id="manager-comment"></div>
+
+        <div class="footer">
+            <p>Need help? <a href="Financial Statements Analysis Made Easy.html">Contact Support</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Default values for NIM, OPM, GPM for 2019 to 2023
+            const nim2019 = 17;
+            const nim2020 = 19;
+            const nim2021 = 19;
+            const nim2022 = 10;
+            const nim2023 = parseFloat(localStorage.getItem('netIncomeMargin2023')) || 0;
+
+            const opm2019 = 18;
+            const opm2020 = 20;
+            const opm2021 = 19.23;
+            const opm2022 = 10.72;
+            const opm2023 = parseFloat(localStorage.getItem('operatingProfitMargin2023')) || 0;
+
+            const gpm2019 = 25;
+            const gpm2020 = 28;
+            const gpm2021 = 30;
+            const gpm2022 = 22;
+            const gpm2023 = parseFloat(localStorage.getItem('grossProfitMargin2023')) || 0;
+
+            // Data for the NIM chart (First Chart)
+            const nimData = {
+                labels: ['2019', '2020', '2021', '2022', '2023'],
+                datasets: [{
+                    label: 'Net Income Margin (NIM) (%)',
+                    data: [nim2019, nim2020, nim2021, nim2022, nim2023],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: '#ff6384',
+                    borderWidth: 2,
+                    hoverBackgroundColor: 'rgba(255, 99, 132, 0.8)'
+                }]
+            };
+
+            // Configuration for the NIM chart (First Chart)
+            const nimConfig = {
+                type: 'bar',
+                data: nimData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        },
+                        y: {
+                            ticks: { color: '#fff', callback: (value) => value + '%' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        }
+                    }
+                }
+            };
+
+            // Render the NIM chart
+            const nimCtx = document.getElementById('nimChart').getContext('2d');
+            new Chart(nimCtx, nimConfig);
+
+            // NIM analysis
+            let nimAnalysis = '';
+            let nimAnalysisClass = '';
+            if (nim2023 < nim2022) {
+                const nimDecrease = ((nim2022 - nim2023) / nim2022) * 100;
+                nimAnalysis += `In 2023, the Net Income Margin decreased compared to 2022, with a drop of ${nimDecrease.toFixed(2)}%. `;
+                nimAnalysisClass = 'negative-analysis';
+            } else if (nim2023 > nim2022) {
+                const nimIncrease = ((nim2023 - nim2022) / nim2022) * 100;
+                nimAnalysis += `In 2023, the Net Income Margin improved compared to 2022, with an increase of ${nimIncrease.toFixed(2)}%. `;
+                nimAnalysisClass = 'positive-analysis';
+            } else {
+                nimAnalysis += 'In 2023, the Net Income Margin remained the same as in 2022. ';
+                nimAnalysisClass = 'neutral-analysis';
+            }
+            document.getElementById('nim-analysis').innerHTML = `<span class="${nimAnalysisClass}">${nimAnalysis}</span>`;
+
+            // Data for the combined chart (Second Chart)
+            const combinedData = {
+                labels: ['2019', '2020', '2021', '2022', '2023'],
+                datasets: [
+                    {
+                        label: 'Net Income Margin (NIM) (%)',
+                        data: [nim2019, nim2020, nim2021, nim2022, nim2023],
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: '#ff6384',
+                        borderWidth: 2,
+                        hoverBackgroundColor: 'rgba(255, 99, 132, 0.8)'
+                    },
+                    {
+                        label: 'Operating Profit Margin (OPM) (%)',
+                        data: [opm2019, opm2020, opm2021, opm2022, opm2023],
+                        backgroundColor: 'rgba(0, 195, 255, 0.6)',
+                        borderColor: '#00c3ff',
+                        borderWidth: 2,
+                        hoverBackgroundColor: 'rgba(0, 195, 255, 0.8)'
+                    },
+                    {
+                        label: 'Gross Profit Margin (GPM) (%)',
+                        data: [gpm2019, gpm2020, gpm2021, gpm2022, gpm2023],
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                        borderColor: '#ff9f40',
+                        borderWidth: 2,
+                        hoverBackgroundColor: 'rgba(255, 159, 64, 0.8)'
+                    }
+                ]
+            };
+
+            // Configuration for the combined chart (Second Chart)
+            const combinedConfig = {
+                type: 'bar',
+                data: combinedData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        },
+                        y: {
+                            ticks: { color: '#fff', callback: (value) => value + '%' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        }
+                    }
+                }
+            };
+
+            // Render the combined chart
+            const combinedCtx = document.getElementById('combinedChart').getContext('2d');
+            new Chart(combinedCtx, combinedConfig);
+
+            // Combined analysis for NIM, OPM, and GPM
+            let combinedAnalysis = '';
+            let combinedAnalysisClass = '';
+
+            // NIM analysis
+            if (nim2023 < nim2022) {
+                const nimDecrease = ((nim2022 - nim2023) / nim2022) * 100;
+                combinedAnalysis += `In 2023, the Net Income Margin decreased compared to 2022, with a drop of ${nimDecrease.toFixed(2)}%. `;
+                combinedAnalysisClass = 'negative-analysis';
+            } else if (nim2023 > nim2022) {
+                const nimIncrease = ((nim2023 - nim2022) / nim2022) * 100;
+                combinedAnalysis += `In 2023, the Net Income Margin improved compared to 2022, with an increase of ${nimIncrease.toFixed(2)}%. `;
+                combinedAnalysisClass = 'positive-analysis';
+            } else {
+                combinedAnalysis += 'In 2023, the Net Income Margin remained the same as in 2022. ';
+                combinedAnalysisClass = 'neutral-analysis';
+            }
+
+            // OPM analysis
+            let opmAnalysis = '';
+            let opmAnalysisClass = '';
+            if (opm2023 < opm2022) {
+                const decrease = ((opm2022 - opm2023) / opm2022) * 100;
+                opmAnalysis += `In 2023, the Operating Profit Margin decreased compared to 2022, with a drop of ${decrease.toFixed(2)}%. `;
+                opmAnalysisClass = 'negative-analysis';
+            } else if (opm2023 > opm2022) {
+                const increase = ((opm2023 - opm2022) / opm2022) * 100;
+                opmAnalysis += `In 2023, the Operating Profit Margin improved compared to 2022, with an increase of ${increase.toFixed(2)}%. `;
+                opmAnalysisClass = 'positive-analysis';
+            } else {
+                opmAnalysis += `In 2023, the Operating Profit Margin remained the same as 2022. `;
+                opmAnalysisClass = 'neutral-analysis';
+            }
+
+            // Add OPM analysis to the combined analysis
+            combinedAnalysis += `<br><span class="${opmAnalysisClass}">${opmAnalysis}</span>`;
+
+            // GPM analysis
+            let gpmAnalysis = '';
+            let gpmAnalysisClass = '';
+            if (gpm2023 < gpm2022) {
+                const gpmDecrease = ((gpm2022 - gpm2023) / gpm2022) * 100;
+                gpmAnalysis += `In 2023, the Gross Profit Margin decreased compared to 2022, with a drop of ${gpmDecrease.toFixed(2)}%. `;
+                gpmAnalysisClass = 'negative-analysis';
+            } else if (gpm2023 > gpm2022) {
+                const gpmIncrease = ((gpm2023 - gpm2022) / gpm2022) * 100;
+                gpmAnalysis += `In 2023, the Gross Profit Margin improved compared to 2022, with an increase of ${gpmIncrease.toFixed(2)}%. `;
+                gpmAnalysisClass = 'positive-analysis';
+            } else {
+                gpmAnalysis += `In 2023, the Gross Profit Margin remained the same as 2022. `;
+                gpmAnalysisClass = 'neutral-analysis';
+            }
+
+            // Add GPM analysis to the combined analysis
+            combinedAnalysis += `<br><span class="${gpmAnalysisClass}">${gpmAnalysis}</span>`;
+            document.getElementById('combined-analysis').innerHTML = `<span class="${combinedAnalysisClass}">${combinedAnalysis}</span>`;
+
+            // Data for APC vs Competitors chart (Third Chart)
+            const apcMarketShare = parseFloat(localStorage.getItem('netIncomeMargin2023')) || 10.5;  // Assume APC market share is fetched from storage
+
+            const apcCompetitorsData = {
+                labels: ['APC', 'PPG Industries', 'Eastman Kodak', 'Canon Inc.', 'Sherwin-Williams', 'Xerox Corporation', 'AkzoNobel', 'RPM International Inc.', 'Mondi Group', 'Tikkurila'],
+                datasets: [{
+                    label: 'Market Share (%)',
+                    data: [apcMarketShare, 4.2, 3.5, 4.1, 6.4, 3.9, 10.8, 11.2, 12.5, 13.1],
+                    backgroundColor: 'rgba(0, 195, 255, 0.6)',
+                    borderColor: '#00c3ff',
+                    borderWidth: 2,
+                    hoverBackgroundColor: 'rgba(0, 195, 255, 0.8)'
+                }]
+            };
+
+            // Configuration for the APC vs Competitors chart (Third Chart)
+            const apcCompetitorsConfig = {
+                type: 'bar',
+                data: apcCompetitorsData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        },
+                        y: {
+                            ticks: { color: '#fff', callback: (value) => value + '%' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        }
+                    }
+                }
+            };
+
+            // Render the APC vs Competitors chart
+            const apcCompetitorsCtx = document.getElementById('apcCompetitorsChart').getContext('2d');
+            new Chart(apcCompetitorsCtx, apcCompetitorsConfig);
+
+            // APC vs Competitors analysis
+            let apcAnalysis = '';
+            let apcAnalysisClass = '';
+            if (apcMarketShare > 12) {
+                apcAnalysis = 'APC has a relatively high market share compared to its global peers in the same sector, indicating strong performance. APC should aim to maintain this dominance and leverage its position for growth.';
+                apcAnalysisClass = 'positive-analysis'; // Green for positive case
+            } else if (apcMarketShare < 10) {
+                apcAnalysis = 'APC has a relatively lower market share compared to its global peers in the same sector, which may signal areas for expansion or the need to improve its competitive strategy.';
+                apcAnalysisClass = 'negative-analysis'; // Red for negative case
+            } else {
+                apcAnalysis = 'APC has a market share in the mid-range compared to its global peers in the same sector, suggesting stable performance. Focus on innovation and market expansion could help improve its position.';
+                apcAnalysisClass = 'neutral-analysis'; // Orange for neutral
+            }
+            document.getElementById('apc-analysis').innerHTML = `<span class="${apcAnalysisClass}">${apcAnalysis}</span>`;
+
+
+
+            // Manager's comment based on NIM change
+            let managerComment = '';
+            if (nim2023 > nim2022) {
+                managerComment = "The financial analysis for 2023 shows positive improvements, especially in key performance areas like the Net Income Margin. Continue focusing on sustaining this growth and exploring new avenues for profitability.";
+            } else {
+                managerComment = "Overall, the financial analysis for 2023 shows both improvements and challenges in key performance areas. Continue focusing on cost efficiency, market expansion, and enhancing profitability through innovation.";
+            }
+
+            document.getElementById('manager-comment').textContent = managerComment;
+
+                    });
+    </script>
+</body>
+</html>

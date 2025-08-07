@@ -1,0 +1,88 @@
+
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+}
+.container {
+    margin-top: 50px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+h1 {
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #00c3ff;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+canvas {
+    margin: 20px 0;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+.canvas-container {
+    width: 55%; /* Adjusted width for medium size */
+    margin: 0 auto;
+}
+.analysis-section {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.btn-custom {
+    background: #00c3ff;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 30px;
+    transition: all 0.3s;
+}
+.btn-custom:hover {
+    background: #00a3d1;
+    transform: translateY(-2px);
+}
+.footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #aaa;
+}
+.footer a {
+    color: #00c3ff;
+    text-decoration: none;
+}
+.back-btn {
+    display: inline-block;
+    color: #fff;
+    text-decoration: none;
+    font-size: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+}
+.back-btn:hover {
+    transform: translateX(-5px);
+    color: #00c3ff;
+}
+
+.manager-comment {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid #00c3ff;
+    color: #fff;
+    font-size: 1.2em;
+}
+
+/* Styling for investor's comment section */
+.investor-comment {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid #FFD700; /* Golden color for the investor */
+    color: #fff;
+    font-size: 1.2em;
+}

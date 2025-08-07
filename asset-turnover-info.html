@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="website icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2657/2657051.png">
+    <title>Asset Turnover Ratio Analysis</title>
+    <link rel="stylesheet" href="css_analysis.css">
+    <!-- Include Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- عنوان الصفحة -->
+        <h1>Asset Turnover Ratio Analysis</h1>
+
+        <!-- الرسم البياني -->
+        <div class="canvas-container">
+            <h2>Graphical Representation</h2>
+            <canvas id="assetTurnoverChart"></canvas>
+        </div>
+
+        <!-- تحليل النسبة -->
+        <div class="analysis-section">
+            <h2>Overview</h2>
+            <h4 id="Overview"></h4>
+        </div>
+
+        <!-- رأي المدير -->
+        <div class="manager-comment">
+            <h3>Financial Manager's Comment:</h3>
+            <p id="ManagerComment"></p>
+        </div>
+
+        <!-- رأي المستثمر -->
+        <div class="investor-comment">
+            <h3>Investor's Perspective:</h3>
+            <p id="InvestorPerspective"></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Need help? <a href="Financial Statements Analysis Made Easy.html">Contact Support</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // نسب السنوات السابقة (مثال)
+            const assetTurnover2019 = 0.803;
+            const assetTurnover2020 = 0.663;
+            const assetTurnover2021 = 0.717;
+            const assetTurnover2022 = 0.855;
+            const assetTurnover2023 = parseFloat(localStorage.getItem('assetTurnover2023'));
+
+            // تحليل النسبة بناءً على قيم السنوات السابقة
+            const analysisSection = document.getElementById('Overview');
+            let analysisText = `The Asset Turnover Ratio for 2023 is <strong>${assetTurnover2023}</strong>. `;
+            let analysisColor = ""; // لون النص
+            let analysisBack = "";
+
+            if (assetTurnover2023 > assetTurnover2022) {
+                analysisText += `This increase compared to <strong>2022 (${assetTurnover2022})</strong> indicates the company is utilizing its assets more efficiently to generate revenue. `;
+                if (assetTurnover2023 >= 1.5) {
+                    analysisText += `A ratio above 1.5 is considered excellent, showing that the company is generating significant revenue relative to its assets.`;
+                    analysisColor = "39ff14"; // أداء ممتاز
+                } else if (assetTurnover2023 >= 1.2) {
+                    analysisText += `A ratio between 1.2 and 1.5 is solid, suggesting efficient utilization of assets with room for improvement.`;
+                    analysisColor = "orange"; // أداء جيد
+                } else {
+                    analysisText += `This indicates a moderate improvement, but the company may still aim for higher efficiency in asset utilization.`;
+                    analysisColor = "orange"; // أداء مقبول
+                }
+            } else if (assetTurnover2023 < assetTurnover2022) {
+                analysisText += `This decrease compared to 2022 (${assetTurnover2022}) suggests the company is not using its assets as effectively as in the previous year. This could be due to underutilized resources, lower sales, or an increase in asset base without a corresponding increase in revenue. `;
+                if (assetTurnover2023 < 1) {
+                    analysisText += `A ratio below 1 is concerning, as it indicates that the company is generating less revenue than the value of its assets.`;
+                    analysisColor = "red"; // أداء ضعيف جدًا
+                } else if (assetTurnover2023 < 1.2) {
+                    analysisText += `This is acceptable but below optimal levels, indicating the need for better asset management strategies.`;
+                    analysisColor = "orange"; // أداء مقبول
+                }
+            } else {
+                analysisText += `The Asset Turnover Ratio for 2023 remained consistent with 2022, indicating stable performance in asset utilization. `;
+                if (assetTurnover2023 < 1.2) {
+                    analysisText += `However, the ratio is below the ideal level, suggesting the company should aim for higher efficiency.`;
+                    analysisColor = "orange"; // أداء مقبول
+                } else if (assetTurnover2023 >= 1.2) {
+                    analysisText += `This is a good sign, showing effective management of the company's assets.`;
+                    analysisColor = "39ff14"; // أداء جيد
+                }
+            }
+            if (analysisColor === "red") {
+                analysisBack = "#e57373"
+            } else {
+                analysisBack = ""
+            }
+
+            // تحديث النص واللون
+            analysisSection.innerHTML = analysisText;
+            analysisSection.style.color = analysisColor;
+            analysisSection.style.backgroundColor = analysisBack;
+            analysisSection.style.padding = "10px"; // حواف داخلية
+            analysisSection.style.borderRadius = "5px"; // زوايا دائرية
+
+
+
+            // رأي المدير
+            const managerSection = document.getElementById('ManagerComment');
+            let manager = '';
+            if (assetTurnover2023 >= 1.5) {
+                manager += 'The Asset Turnover Ratio above 1.5 demonstrates outstanding efficiency in generating revenue relative to the company’s assets. This reflects positively on the company’s operational performance.';
+            } else if (assetTurnover2023 >= 1.2) {
+                manager += 'The ratio between 1.2 and 1.5 is good but leaves room for improvement. The company should consider strategies to further optimize asset utilization.';
+            } else if (assetTurnover2023 < 1.2) {
+                manager += 'The ratio below 1.2 highlights inefficiencies in utilizing assets to generate revenue. The company should focus on asset management and operational efficiency. <br> Recommendations:Evaluate underperforming assets or divisions to identify inefficiencies, And Focus on increasing sales or better utilizing existing assets through operational improvements.';
+            }
+            managerSection.innerHTML = manager;
+
+            // رأي المستثمر
+            const investorSection = document.getElementById('InvestorPerspective');
+            let investor = '';
+            if (assetTurnover2023 >= 1.5) {
+                investor += 'A ratio above 1.5 is highly favorable, indicating the company is maximizing its assets to generate revenue. This is a strong indicator of financial health and operational efficiency.';
+            } else if (assetTurnover2023 >= 1.2) {
+                investor += 'A ratio between 1.2 and 1.5 is solid, suggesting good asset utilization. However, investors might encourage further optimization to maximize profitability.';
+            } else {
+                investor += 'A ratio below 1.2 could raise concerns about the company’s ability to effectively use its assets. Investors may view this as a sign of potential inefficiencies or challenges in revenue generation.';
+            }
+            investorSection.innerHTML = investor;
+
+            // إعداد الرسم البياني
+            const ctx = document.getElementById('assetTurnoverChart').getContext('2d');
+            const assetTurnoverChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023'],
+                    datasets: [{
+                        label: 'Asset Turnover Ratio',
+                        data: [assetTurnover2019, assetTurnover2020, assetTurnover2021, assetTurnover2022, assetTurnover2023],
+                        borderColor: '#ff5733',
+                        backgroundColor: 'rgba(255, 87, 51, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#ff5733'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { color: '#fff' } },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleColor: '#ff5733',
+                            bodyColor: '#fff',
+                            borderWidth: 1,
+                            borderColor: '#ff5733'
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' }, beginAtZero: true }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

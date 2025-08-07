@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="website icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2657/2657051.png">
+    <title>Quick Ratio Analysis</title>
+    <link rel="stylesheet" href="css_analysis.css">
+    <!-- Include Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- عنوان الصفحة -->
+        <h1>Quick Ratio Analysis</h1>
+
+        <!-- الرسم البياني -->
+        <div class="canvas-container">
+            <h2>Graphical Representation</h2>
+            <canvas id="quickRatioChart"></canvas>
+        </div>
+
+        <!-- تحليل النسبة -->
+        <div class="analysis-section">
+            <h2>Overview</h2>
+            <h4 id="Overview"></h4>
+            </p>
+        </div>
+
+        <!-- رأي المدير -->
+        <div class="manager-comment">
+            <h3>Financial Manager's Comment:</h3>
+            <p id="ManagerComment"></p>
+        </div>
+
+        <!-- رأي المستثمر -->
+        <div class="investor-comment">
+            <h3>Investor's Perspective:</h3>
+            <p id="InvestorPerspective"></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Need help? <a href="Financial Statements Analysis Made Easy.html">Contact Support</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // نسب السنوات السابقة
+            const quickRatio2019 = 2.362;
+            const quickRatio2020 = 2.325;
+            const quickRatio2021 = 2.606;
+            const quickRatio2022 = 2.05;
+            const quickRatio2023 = parseFloat(localStorage.getItem('QuickRatio2023'));
+
+            // تحليل النسبة بناءً على قيم السنوات السابقة
+            const analysisSection = document.getElementById('Overview');
+            let analysisText = `The Quick Ratio for 2023 is <strong>${quickRatio2023}</strong>. `;
+
+            if (quickRatio2023 > quickRatio2022) {
+                analysisText += `This increase compared to <strong>2022 (${quickRatio2022})</strong> indicates improved liquidity. Generally, the Quick Ratio is an indicator of a company's ability to cover its current liabilities with its most liquid assets. `;
+                
+                if (quickRatio2023 >= 2.5) {
+                    analysisText += `A ratio higher than 2.5 indicates strong liquidity, which is a positive signal. However, it might suggest that the company is holding excess liquid assets which could be better utilized.`;
+                } else if (quickRatio2023 >= 2) {
+                    analysisText += `A ratio between 2 and 2.5 indicates solid liquidity and suggests that the company can meet its short-term obligations.`;
+                } else if (quickRatio2023 > 1){
+                    analysisText += `This ratio still suggests the company is able to cover its liabilities, but closer attention is needed to avoid falling below a safe liquidity threshold.`;
+                } else {
+                    analysisText += '//////////////////////////////////////////'
+                }
+            } else if (quickRatio2023 < quickRatio2022) {
+                analysisText += `This decrease compared to 2022 (${quickRatio2022}) suggests slightly reduced liquidity. `;
+
+                if (quickRatio2023 < 2) {
+                    analysisText += `A ratio below 2 raises concerns, as it suggests that the company may face liquidity challenges if its short-term liabilities increase.`;
+                } else if (quickRatio2023 < 2.5) {
+                    analysisText += `This still indicates acceptable liquidity, but there is a need for careful management of liquid assets to avoid potential cash flow issues.`;
+                }
+            } else {
+                analysisText += `The Quick Ratio for 2023 remained consistent with 2022, which suggests stable liquidity. `;
+                
+                if (quickRatio2023 < 2) {
+                    analysisText += `However, this value is still lower than the optimal level of 2, which might indicate a potential risk if liabilities increase.`;
+                } else if (quickRatio2023 >= 2) {
+                    analysisText += `This is generally a good sign, as it means the company has enough liquid assets to cover its short-term obligations.`;
+                }
+            }
+
+            if (quickRatio2023 > 1){
+                analysisStyle = '#39ff14'
+            } else if (quickRatio2023 > 0.7){
+                analysisStyle = 'orange'
+            } else {
+                analysisStyle = 'red'
+            }
+
+            if (analysisStyle === "red") {
+                analysisBack = "#e57373"
+            } else {
+                analysisBack = ""
+            }
+
+            analysisSection.innerHTML = analysisText;
+            analysisSection.style.color = analysisStyle;
+            analysisSection.style.backgroundColor = analysisBack;
+            analysisSection.style.padding = "10px"; // حواف داخلية
+            analysisSection.style.borderRadius = "5px";
+                        
+            // رأي المدير
+            const managerSection = document.getElementById('ManagerComment');
+            let manager = '';
+
+            if (quickRatio2023 < 1) {
+                manager += 'The Quick Ratio is below 1, indicating potential liquidity risks. The company should monitor its short-term liabilities carefully.';
+            } else if (quickRatio2023 >= 1 && quickRatio2023 < 2) {
+                manager += 'The Quick Ratio is between 1 and 2, indicating solid liquidity, but there may be room for improving asset utilization.';
+            } else if (quickRatio2023 >= 2) {
+                manager += 'The Quick Ratio is above 2, indicating strong liquidity, which is a positive sign. However, excess liquid assets may be underutilized.';
+            }
+
+            managerSection.innerHTML = manager;
+
+
+            // رأي المستثمر
+            const investorSection = document.getElementById('InvestorPerspective');
+            let investor = '';
+            if (quickRatio2023 >= 2.5) {
+                investor += 'A Quick Ratio above 2.5 indicates strong liquidity, suggesting that the company is financially healthy and well-positioned to meet its obligations. Investors would likely view this as a positive signal of financial stability.';
+            } else if (quickRatio2023 >= 2) {
+                investor += 'A Quick Ratio between 2 and 2.5 is still solid, indicating that the company can meet its liabilities. However, investors should ensure that the company is efficiently utilizing its liquid assets.';
+            } else {
+                investor += 'A Quick Ratio below 2 suggests liquidity concerns. Investors should be cautious as the company may face challenges in meeting its short-term obligations, which could impact its financial stability.';
+            }
+            investorSection.innerHTML = investor;
+
+            // إعداد الرسم البياني
+            const ctx = document.getElementById('quickRatioChart').getContext('2d');
+            const quickRatioChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023'],
+                    datasets: [{
+                        label: 'Quick Ratio',
+                        data: [quickRatio2019, quickRatio2020, quickRatio2021, quickRatio2022, quickRatio2023],
+                        borderColor: '#00c3ff',
+                        backgroundColor: 'rgba(0, 195, 255, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#00c3ff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { color: '#fff' } },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleColor: '#00c3ff',
+                            bodyColor: '#fff',
+                            borderWidth: 1,
+                            borderColor: '#00c3ff'
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' }, beginAtZero: true }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="website icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2657/2657051.png">
+    <title>Accounts Receivable Turnover Ratio Analysis</title>
+    <link rel="stylesheet" href="css_analysis.css">
+    <!-- Include Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- عنوان الصفحة -->
+        <h1>Accounts Receivable Turnover Ratio Analysis</h1>
+
+        <!-- الرسم البياني -->
+        <div class="canvas-container">
+            <h2>Graphical Representation</h2>
+            <canvas id="accountsReceivableChart"></canvas>
+        </div>
+
+        <!-- تحليل النسبة -->
+        <div class="analysis-section">
+            <h2>Overview</h2>
+            <h4 id="Overview"></h4>
+        </div>
+
+        <!-- رأي المدير -->
+        <div class="manager-comment">
+            <h3>Financial Manager's Comment:</h3>
+            <p id="ManagerComment"></p>
+        </div>
+
+        <!-- رأي المستثمر -->
+        <div class="investor-comment">
+            <h3>Investor's Perspective:</h3>
+            <p id="InvestorPerspective"></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Need help? <a href="Financial Statements Analysis Made Easy.html">Contact Support</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // نسب السنوات السابقة (مثال)
+            const turnover2019 = 2.014;
+            const turnover2020 = 1.591;
+            const turnover2021 = 1.831;
+            const turnover2022 = 1.987;
+            const turnover2023 = parseFloat(localStorage.getItem('AccountsReceivableTurnover2023'));
+
+            // تحليل النسبة بناءً على قيم السنوات السابقة
+            const analysisSection = document.getElementById('Overview');
+            let analysisText = `The Accounts Receivable Turnover Ratio for 2023 is <strong>${turnover2023}</strong>. `;
+            let analysisColor = ""; // لون النص
+            let analysisBack = "";  // خلفية النص
+
+            if (turnover2023 > turnover2022) {
+                analysisText += `This increase compared to <strong>2022 (${turnover2022})</strong> reflects improved efficiency in collecting accounts receivable. `;
+                if (turnover2023 >= 2.5) {
+                    analysisText += `A ratio above 2.5 is excellent, indicating the company is managing its receivables effectively and quickly converting credit sales into cash.`;
+                    analysisColor = "#39ff14";
+                } else if (turnover2023 >= 2.0) {
+                    analysisText += `A ratio between 2.0 and 2.5 is solid, showing good management of receivables with slight room for improvement.`;
+                    analysisColor = "orange";
+                } else {
+                    analysisText += `The improvement is moderate, but further optimization of receivables management is recommended.`;
+                    analysisColor = "orange";
+                }
+            } else if (turnover2023 < turnover2022) {
+                analysisText += `This decline compared to 2022 (${turnover2022}) indicates potential delays in collecting accounts receivable. `;
+                if (turnover2023 < 1.5) {
+                    analysisText += `A ratio below 1.5 is concerning, highlighting inefficiencies in managing receivables. Immediate action is recommended.`;
+                    analysisColor = "red";
+                } else if (turnover2023 < 2.0) {
+                    analysisText += `Although acceptable, a ratio below 2.0 suggests the need for improved collection policies and credit management.`;
+                    analysisColor = "orange";
+                }
+            } else {
+                analysisText += `The Accounts Receivable Turnover Ratio for 2023 remained consistent with 2022, indicating stable performance in receivables management. `;
+                if (turnover2023 >= 2.0) {
+                    analysisText += `This stability reflects good control over receivables.`;
+                    analysisColor = "#39ff14";
+                } else {
+                    analysisText += `While stable, the ratio is below the ideal level, suggesting room for improvement.`;
+                    analysisColor = "orange";
+                }
+            }
+            if (analysisColor === "red") {
+                analysisBack = "#e57373";
+            }
+
+            // تحديث النص واللون
+            analysisSection.innerHTML = analysisText;
+            analysisSection.style.color = analysisColor;
+            analysisSection.style.backgroundColor = analysisBack;
+            analysisSection.style.padding = "10px";
+            analysisSection.style.borderRadius = "5px";
+
+
+            // رأي المدير
+            const managerSection = document.getElementById('ManagerComment');
+            let manager = '';
+            if (turnover2023 >= 3) {
+                manager += 'The Accounts Receivable Turnover Ratio is comfortably above 3, indicating excellent performance in collecting receivables. This is a strong indication of the company’s efficiency in managing its credit policies and cash flow.';
+            } else if (turnover2023 >= 2) {
+                manager += 'The Accounts Receivable Turnover Ratio is between 2 and 3, which is solid performance. However, there is still room for optimization in the collection process to improve cash flow and reduce outstanding receivables.';
+            } else if (turnover2023 < 2) {
+                manager += 'The ratio below 2 indicates that the company is experiencing challenges in managing its receivables. The company should review its credit policies and implement strategies to improve the speed of collection.';
+            }
+            managerSection.innerHTML = manager;
+
+
+            // رأي المستثمر
+            const investorSection = document.getElementById('InvestorPerspective');
+            let investor = '';
+            if (turnover2023 >= 3) {
+                investor += 'A ratio above 3 suggests a highly efficient accounts receivable management, which is a strong indicator of good financial health. Investors would likely view this as a positive sign for future profitability and liquidity.';
+            } else if (turnover2023 >= 2) {
+                investor += 'A ratio between 2 and 3 is solid, indicating that the company is effectively managing its receivables. However, investors should ensure that the company can continue to optimize its collection processes to maximize cash flow.';
+            } else {
+                investor += 'A ratio below 2 raises concerns about the company’s ability to manage its receivables efficiently. Investors should be cautious, as this may signal potential liquidity problems in the future.';
+            }
+            investorSection.innerHTML = investor;
+
+            // إعداد الرسم البياني
+            const ctx = document.getElementById('accountsReceivableChart').getContext('2d');
+            const accountsReceivableChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023'],
+                    datasets: [{
+                        label: 'Accounts Receivable Turnover Ratio',
+                        data: [turnover2019, turnover2020, turnover2021, turnover2022, turnover2023],
+                        borderColor: '#ff5733',
+                        backgroundColor: 'rgba(255, 87, 51, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#ff5733'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { color: '#fff' } },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleColor: '#ff5733',
+                            bodyColor: '#fff',
+                            borderWidth: 1,
+                            borderColor: '#ff5733'
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' }, beginAtZero: true }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

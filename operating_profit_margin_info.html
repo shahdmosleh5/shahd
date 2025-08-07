@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="website icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2657/2657051.png">
+    <title>Operating Profit Margin Analysis</title>
+    <link rel="stylesheet" href="css_analysis.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Adding custom CSS for positive and negative analysis */
+        .positive-analysis {
+            color: rgb(55, 237, 55);
+            font-weight: bold;
+        }
+
+        .negative-analysis {
+            color: #FF6347;
+            font-weight: bold;
+        }
+
+        .neutral-analysis {
+            color: orange;
+        }
+
+        /* Styling the manager's comment section */
+        .manager-comment {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #00c3ff;
+            color: #fff;
+            font-size: 1.2em;
+        }
+
+        /* Button Styling */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .button {
+            background-color: #00c3ff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #007a8c;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px 0;
+            border: 2px solid #00c3ff;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="excel.html" class="back-btn">&larr; Back</a>
+        <h1>Operating Profit Margin Analysis</h1>
+        
+        <div class="canvas-container">
+            <canvas id="opmChart"></canvas>
+        </div>
+
+        <div class="analysis-section">
+            <h2>Deep Analysis</h2>
+            <p id="opm-analysis">Analyzing data...</p>
+        </div>
+
+        <!-- Manager's Comment Section -->
+        <div class="manager-comment" id="manager-comment">
+            <!-- The manager's comment will be inserted here -->
+        </div>
+
+        <div class="button-container">
+            <button class="button" onclick="showAnalysis('2021')">2021 Analysis</button>
+            <button class="button" onclick="showAnalysis('2022')">2022 Analysis</button>
+            <button class="button" onclick="showAnalysis('2023')">2023 Analysis</button>
+        </div>
+
+        <div class="footer">
+            <p>Need help? <a href="Financial Statements Analysis Made Easy.html">Contact Support</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Default values for OPM for 2021 and 2022
+            const opm2021 = 19.23;
+            const opm2022 = 10.72;
+
+            // Retrieve OPM value for 2023 from localStorage (fallback to 0 if not set)
+            const opm2023 = parseFloat(localStorage.getItem('operatingProfitMargin2023')) || 0;
+
+            // Data for the chart
+            const labels = ['2021', '2022', '2023'];
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Operating Profit Margin (%)',
+                    data: [opm2021, opm2022, opm2023],
+                    backgroundColor: 'rgba(0, 195, 255, 0.6)',
+                    borderColor: '#00c3ff',
+                    borderWidth: 2,
+                    hoverBackgroundColor: 'rgba(0, 195, 255, 0.8)'
+                }]
+            };
+
+            // Chart configuration
+            const config = {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#fff',
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        },
+                        y: {
+                            ticks: { color: '#fff', callback: (value) => value + '%' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        }
+                    }
+                }
+            };
+
+            // Render the chart
+            const ctx = document.getElementById('opmChart').getContext('2d');
+            new Chart(ctx, config);
+
+            // Analysis section
+            let analysis = '';
+            let analysisClass = '';
+
+            // Analysis between 2022 and 2023
+            if (opm2023 < opm2022) {
+                const decrease = ((opm2022 - opm2023) / opm2022) * 100;
+                analysis += `In 2023, the Operating Profit Margin decreased compared to 2022, with a drop of ${decrease.toFixed(2)}%. `;
+                analysisClass = 'negative-analysis';
+            } else if (opm2023 > opm2022) {
+                const increase = ((opm2023 - opm2022) / opm2022) * 100;
+                analysis += `In 2023, there was an improvement in Operating Profit Margin compared to 2022, with an increase of ${increase.toFixed(2)}%. `;
+                analysisClass = 'positive-analysis';
+            } else {
+                analysis += `In 2023, the Operating Profit Margin remained the same as 2022. `;
+                analysisClass = 'neutral-analysis';
+            }
+
+            // Analysis between 2021 and 2022
+            if (opm2022 < opm2021) {
+                const decrease = ((opm2021 - opm2022) / opm2021) * 100;
+                analysis += `The trend from 2021 to 2022 showed a decline of ${decrease.toFixed(2)}%.`;
+            } else if (opm2022 > opm2021) {
+                const increase = ((opm2022 - opm2021) / opm2021) * 100;
+                analysis += `The trend from 2021 to 2022 was positive, with an increase of ${increase.toFixed(2)}%.`;
+            } else {
+                analysis += `The Operating Profit Margin remained the same from 2021 to 2022.`;
+            }
+
+            // Update the analysis section with the correct class for styling
+            const analysisElement = document.getElementById('opm-analysis');
+            analysisElement.textContent = analysis;
+            analysisElement.className = analysisClass;
+
+            // Manager's Comment section
+            let managerComment = '';
+            if (opm2023 < 5) {
+                managerComment = `Considering the significant drop in Operating Profit Margin for 2023, it is recommended to analyze the underlying reasons and take corrective actions to improve profitability.`;
+            } else if (opm2023 > opm2022) {
+                managerComment = `With the improvement in Operating Profit Margin in 2023, the company is heading in the right direction. However, continuous monitoring and further cost control measures will ensure sustained growth.`;
+            } else {
+                managerComment = `The Operating Profit Margin has remained consistent, but there is room for improvement. It is essential to explore new strategies for growth in the coming year.`;
+            }
+
+            // Insert manager comment
+            document.getElementById('manager-comment').textContent = managerComment;
+        });
+
+        function showAnalysis(year) {
+    let analysisText = '';
+    let commentClass = '';
+    let commentText = '';
+
+    // Retrieve the OPM value for 2023 from localStorage (or fallback to 0 if not set)
+    const opm2023 = parseFloat(localStorage.getItem('operatingProfitMargin2023')) || 0;
+
+    if (year === '2021') {
+        analysisText = `In 2021, the Operating Profit Margin was strong at 19.23%. This indicates a solid profitability performance.`;
+        commentClass = 'positive-analysis';
+        commentText = `The company had an impressive year in 2021. Continued efforts to maintain or improve this level are recommended.`;
+    } else if (year === '2022') {
+        analysisText = `In 2022, the Operating Profit Margin decreased to 10.72%, indicating a decline in profitability.`;
+        commentClass = 'negative-analysis';
+        commentText = `A decrease in profitability was noted. A detailed review of operational expenses is required.`;
+    } else if (year === '2023') {
+        // For 2023, use the value calculated or retrieved from localStorage
+        analysisText = `In 2023, the Operating Profit Margin is calculated as ${opm2023.toFixed(2)}%. Immediate corrective actions are needed if the margin has decreased.`;
+        commentClass = opm2023 < 5 ? 'negative-analysis' : 'positive-analysis';
+        commentText = opm2023 < 5 ? `The decline in 2023 is concerning. Strategies for cost reduction and operational improvement should be implemented.` : `The company made progress in 2023, but monitoring and cost control are necessary to sustain growth.`;
+    }
+
+    document.getElementById('manager-comment').textContent = commentText;
+    document.getElementById('manager-comment').className = `manager-comment ${commentClass}`;
+    document.querySelector('.analysis-section p').textContent = analysisText;
+}
+
+            let analysisText = '';
+            let commentClass = '';
+            let commentText = '';
+
+            if (year === '2021') {
+                analysisText = `In 2021, the Operating Profit Margin was strong at 19.23%. This indicates a solid profitability performance.`;
+                commentClass = 'positive-analysis';
+                commentText = `The company had an impressive year in 2021. Continued efforts to maintain or improve this level are recommended.`;
+            } else if (year === '2022') {
+                analysisText = `In 2022, the Operating Profit Margin decreased to 10.72%, indicating a decline in profitability.`;
+                commentClass = 'negative-analysis';
+                commentText = `A decrease in profitability was noted. A detailed review of operational expenses is required.`;
+            } else if (year === '2023') {
+                analysisText = `In 2023, the Operating Profit Margin further dropped to 5.34%. Immediate corrective actions are needed.`;
+                commentClass = 'negative-analysis';
+                commentText = `The decline in 2023 is concerning. Strategies for cost reduction and operational improvement should be implemented.`;
+            }
+
+            document.getElementById('manager-comment').textContent = commentText;
+            document.getElementById('manager-comment').className = `manager-comment ${commentClass}`;
+            document.querySelector('.analysis-section p').textContent = analysisText;
+        
+    </script>
+</body>
+</html>

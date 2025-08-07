@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة محاكاة الأداء المالي - APC</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #2d3748, #4a5568);
+            color: white;
+            direction: rtl;
+        }
+        header {
+            background-color: #1a202c;
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            border-bottom: 3px solid #4a5568;
+        }
+        header h1 {
+            font-size: 2.5rem;
+        }
+        header p {
+            font-size: 1.2rem;
+            margin: 0.5rem 0 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #1a202c;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .decision {
+            font-size: 1.4rem;
+            margin: 1.5rem 0;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-evenly;
+            margin-top: 1.5rem;
+        }
+        button {
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .positive {
+            background-color: #38b2ac;
+            color: white;
+        }
+        .positive:hover {
+            background-color: #319795;
+        }
+        .negative {
+            background-color: #e53e3e;
+            color: white;
+        }
+        .negative:hover {
+            background-color: #c53030;
+        }
+        .status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #2d3748;
+            border-radius: 8px;
+            border-right: 6px solid #4a5568;
+        }
+        .status p {
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        #chart-container {
+            margin-top: 2rem;
+            background: #2d3748;
+            padding: 1rem;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>لوحة محاكاة الأداء المالي - APC</h1>
+        <p>اتخذ قرارات مالية استراتيجية وراقب أثرها الفوري على أداء الشركة.</p>
+    </header>
+    <div class="container">
+        <div id="game">
+            <p class="decision">هل توافق على استثمار مبلغ 100,000$ لتوسيع عمليات الشركة؟</p>
+            <div class="buttons">
+                <button class="positive" onclick="makeDecision(true)">نعم</button>
+                <button class="negative" onclick="makeDecision(false)">لا</button>
+            </div>
+        </div>
+        <div id="status" class="status">
+            <p><strong>التدفق النقدي:</strong> $500,000</p>
+            <p><strong>رضا الموظفين:</strong> 90%</p>
+            <p><strong>الربحية:</strong> 20%</p>
+            <p><strong>الإيرادات:</strong> $2,000,000</p>
+            <p><strong>المصاريف:</strong> $300,000</p> <!-- أضفنا خانة المصاريف هنا -->
+        </div>
+        <div id="chart-container">
+            <canvas id="financialChart"></canvas>
+        </div>
+    </div>
+    <script>
+        let cashFlow = 500000;
+        let employeeSatisfaction = 90;
+        let profitability = 20;
+        let revenue = 2000000;
+        let expenses = 300000; // إضافة المتغير الخاص بالمصاريف
+        let questionCount = 0;
+        const maxQuestions = 10;
+
+        const decisions = [
+            {
+                question: "هل توافق على استثمار مبلغ 100,000$ لتوسيع عمليات الشركة؟",
+                effects: {
+                    positive: { cashFlow: -100000, revenue: 300000, expenses: 50000, message: "قررت التوسع. زادت الإيرادات ولكن انخفض التدفق النقدي." },
+                    negative: { message: "رفضت التوسع. لم يحدث أي تغيير." }
+                }
+            },
+            {
+                question: "هل توافق على زيادة رواتب الموظفين بنسبة 10٪ لتحسين رضاهم؟",
+                effects: {
+                    positive: { cashFlow: -50000, employeeSatisfaction: 10, expenses: 20000, message: "زادت رضا الموظفين ولكن انخفض التدفق النقدي." },
+                    negative: { employeeSatisfaction: -5, message: "رفضت زيادة الرواتب. انخفض رضا الموظفين." }
+                }
+            },
+            {
+                question: "هل توافق على إطلاق حملة تسويقية بقيمة 50,000$؟",
+                effects: {
+                    positive: { cashFlow: -50000, revenue: 100000, expenses: 30000, message: "زادت الإيرادات بعد إطلاق الحملة." },
+                    negative: { message: "رفضت الحملة. لم يحدث أي تغيير." }
+                }
+            },
+            {
+                question: "هل توافق على تقليل النفقات التشغيلية بنسبة 15٪؟",
+                effects: {
+                    positive: { cashFlow: 30000, profitability: 5, expenses: -45000, message: "تم تحسين الربحية والتدفق النقدي." },
+                    negative: { profitability: -2, message: "رفضت تقليل النفقات. انخفضت الربحية." }
+                }
+            },
+            {
+                question: "هل توافق على شراء معدات جديدة بقيمة 200,000$ لتحسين الإنتاج؟",
+                effects: {
+                    positive: { cashFlow: -200000, revenue: 150000, expenses: 50000, message: "زادت الإيرادات بعد تحسين الإنتاج ولكن انخفض التدفق النقدي." },
+                    negative: { message: "رفضت الشراء. لم يحدث أي تغيير." }
+                }
+            }
+        ];
+
+        const chartData = {
+            labels: ["البداية"],
+            datasets: [
+                {
+                    label: "التدفق النقدي",
+                    data: [cashFlow],
+                    borderColor: "#38b2ac",
+                    backgroundColor: "rgba(56, 178, 172, 0.2)",
+                    fill: true
+                },
+                {
+                    label: "الربحية",
+                    data: [profitability],
+                    borderColor: "#e53e3e",
+                    backgroundColor: "rgba(229, 62, 62, 0.2)",
+                    fill: true
+                },
+                {
+                    label: "الإيرادات",
+                    data: [revenue],
+                    borderColor: "#3182ce",
+                    backgroundColor: "rgba(49, 130, 206, 0.2)",
+                    fill: true
+                },
+                {
+                    label: "المصاريف", // إضافة مجموعة جديدة للمصاريف
+                    data: [expenses],
+                    borderColor: "#f6ad55",
+                    backgroundColor: "rgba(246, 173, 85, 0.2)",
+                    fill: true
+                }
+            ]
+        };
+
+        const chartConfig = {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'القرارات'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'القيم المالية'
+                        }
+                    }
+                }
+            }
+        };
+
+        const financialChart = new Chart(
+            document.getElementById('financialChart'),
+            chartConfig
+        );
+
+        function updateStatus() {
+            const status = document.getElementById("status");
+            status.innerHTML = `
+                <p><strong>التدفق النقدي:</strong> $${cashFlow.toLocaleString()}</p>
+                <p><strong>رضا الموظفين:</strong> ${employeeSatisfaction}%</p>
+                <p><strong>الربحية:</strong> ${profitability}%</p>
+                <p><strong>الإيرادات:</strong> $${revenue.toLocaleString()}</p>
+                <p><strong>المصاريف:</strong> $${expenses.toLocaleString()}</p> <!-- عرض المصاريف هنا -->
+            `;
+            updateChart();
+        }
+
+        function updateChart() {
+            chartData.labels.push(`قرار ${questionCount + 1}`);
+            chartData.datasets[0].data.push(cashFlow);
+            chartData.datasets[1].data.push(profitability);
+            chartData.datasets[2].data.push(revenue);
+            chartData.datasets[3].data.push(expenses); // إضافة المصاريف إلى البيانات
+            financialChart.update();
+        }
+
+        function makeDecision(positive) {
+            const currentDecision = decisions[questionCount % decisions.length];
+            const effects = currentDecision.effects[positive ? 'positive' : 'negative'];
+
+            cashFlow += effects.cashFlow || 0;
+            employeeSatisfaction += effects.employeeSatisfaction || 0;
+            profitability += effects.profitability || 0;
+            revenue += effects.revenue || 0;
+            expenses += effects.expenses || 0; // تحديث المصاريف
+
+            document.querySelector(".decision").textContent = effects.message;
+
+            questionCount++;
+
+            // Check if cashFlow has reached zero or below
+            if (cashFlow <= 0) {
+                document.querySelector(".decision").textContent = "لقد خسرت! التدفق النقدي وصل إلى صفر.";
+                document.querySelectorAll("button").forEach(button => button.disabled = true);
+            }
+            // Check if profitability has reached a high value
+            else if (profitability >= 50) {
+                document.querySelector(".decision").textContent = "مبروك! لقد حققت أرباحًا عالية وفزت في اللعبة.";
+                document.querySelectorAll("button").forEach(button => button.disabled = true);
+            } else {
+                if (questionCount >= maxQuestions) {
+                    document.querySelector(".decision").textContent = "تهانينا! أكملت جميع القرارات. النتائج النهائية معروضة أعلاه.";
+                    document.querySelectorAll("button").forEach(button => button.disabled = true);
+                } else {
+                    nextDecision();
+                }
+            }
+
+            updateStatus();
+        }
+
+        function nextDecision() {
+            const nextQuestion = decisions[questionCount % decisions.length]?.question;
+            if (nextQuestion) {
+                document.querySelector(".decision").textContent = nextQuestion;
+            }
+        }
+
+        window.onload = updateStatus;
+    </script>
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="website icon" type="image/png" href="https://play-lh.googleusercontent.com/WL9oSrJxfO6XDrSnuERVcjFXN--XztDibPGtAxIJsJBfm2ZAv4WvkR5yFuOcFKKR0_A">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css.css">
+    <title>Financial Ratios Calculator</title>
+    <style>
+
+      .containe {
+          margin: 50px auto;
+          max-width: 900px;
+          padding: 20px;
+          background: #ffffff;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+          border-radius: 8px;
+      }
+      .top-left-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: #0b2545;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.top-left-button:hover {
+  background-color: #133e7c;
+  transform: translateX(2px);
+}
+      h1 {
+          text-align: center;
+          color: #2c3e50;
+          margin-bottom: 20px;
+      }
+      label {
+          font-weight: 500;
+          display: block;
+          margin-bottom: 10px;
+      }
+      input[type="file"] {
+          width: 90%;
+          padding: 12px;
+          border: 1px solid #dcdcdc;
+          border-radius: 5px;
+          margin-bottom: 20px;
+          box-sizing: border-box;
+      }
+      button {
+          display: inline-block;
+          padding: 10px 20px;
+          font-size: 16px;
+          color: #ffffff;
+          background-color: #3498db;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+      button:disabled {
+          background-color: #bdc3c7;
+          cursor: not-allowed;
+      }
+      button:hover:not(:disabled) {
+          background-color: #2980b9;
+      }
+      button:disabled {
+          background-color: #bdc3c7;
+          cursor: not-allowed;
+      }
+      button:hover:not(:disabled) {
+          background-color: #3498db;
+      }
+      .hidden {
+          display: none;
+      }
+      .result {
+          margin-top: 20px;
+          background: #ecf0f1;
+          padding: 15px;
+          border: 1px solid #dcdcdc;
+          border-radius: 5px;
+          font-size: 16px;
+      }
+      #reset-button {
+          background-color: #e74c3c;
+          margin-top: 10px;
+      }
+      #reset-button:hover {
+          background-color: #c0392b;
+      }
+      .help-link {
+          color: #3498db;
+          text-decoration: none;
+          margin-left: 10px;
+      }
+      .help-link:hover {
+          text-decoration: underline;
+      }
+      .collapsible {
+          background-color: #2c3e50;
+          color: white;
+          cursor: pointer;
+          padding: 10px;
+          width: 100%;
+          border: none;
+          text-align: left;
+          outline: none;
+          font-size: 16px;
+          margin-top: 20px;
+          border-radius: 5px;
+      }
+      .collapsible:hover {
+          background-color: #34495e;
+      }
+      .content {
+          padding: 0 15px;
+          display: none;
+          overflow: hidden;
+          background-color: #ecf0f1;
+          border: 1px solid #dcdcdc;
+          border-radius: 5px;
+          margin-top: 10px;
+      }
+  </style>
+</head>
+<body style="background-color: #D9EAFD">
+    <button class="top-left-button" onclick="window.location.href='excel_introdaction.html'">
+  ← Back
+    </button>
+
+    <div class="containe">
+        <h1>Financial Statements Analysis</h1>
+        <div id="upload-section">
+            <label for="income-file-input">Upload Income Statement (Excel):</label>
+            <input type="file" id="income-file-input" accept=".xls,.xlsx">
+            <label for="balance-file-input">Upload Balance Sheet (Excel):</label>
+            <input type="file" id="balance-file-input" accept=".xls,.xlsx">
+            <div>            <button id="next-button" disabled>Next</button></div>
+        </div>
+        <div id="result-section" class="hidden">
+            <h2>Calculated Ratios</h2>
+            <button class="collapsible">Profitable Ratios</button>
+            <div class="content" id="profitable-ratios"></div>
+
+            <button class="collapsible">Leverage Ratios</button>
+            <div class="content" id="leverage-ratios"></div>
+
+            <button class="collapsible">Efficiency Ratios</button>
+            <div class="content" id="efficiency-ratios"></div>
+
+            <button class="collapsible">Liquidity Ratios</button>
+            <div class="content" id="liquidity-ratios"></div>
+
+            <button class="collapsible">Price Ratios</button>
+            <div class="content" id="leverage-ratios"></div>
+            <button id="reset-button">Reset</button>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedGrossProfitMargin = localStorage.getItem('grossProfitMargin2023');
+            const storedOperatingProfitMargin = localStorage.getItem('operatingProfitMargin2023');
+            const storedNetIncomeMargin = localStorage.getItem('netIncomeMargin2023');
+            const storedDebtToAssets = localStorage.getItem('debtToAssets2023');
+            const storedDebtToEquity = localStorage.getItem('debtToEquity2023');
+            
+            const storedCashRatio = localStorage.getItem('CashRatio2023');
+            const storedCurrentRatio = localStorage.getItem('CurrentRatio2023');
+            const storedQuickRatio = localStorage.getItem('QuickRatio2023');
+            const storedAccountsReceivableTurnover = localStorage.getItem('AccountsReceivableTurnover2023');
+            const storedAssetTurnover = localStorage.getItem('assetTurnover2023')
+
+            if (storedGrossProfitMargin || storedOperatingProfitMargin || storedNetIncomeMargin || storedDebtToAssets || storedDebtToEquity || storedCashRatio || storedCurrentRatio || storedQuickRatio || storedAccountsReceivableTurnover || storedAssetTurnover) {
+                const resultSection = document.getElementById('result-section');
+                const profitableRatiosDiv = document.getElementById('profitable-ratios');
+                const leverageRatiosDiv = document.getElementById('leverage-ratios');
+
+                
+                const EfficiencyRatiosDiv = document.getElementById('efficiency-ratios');
+                const liquidityRatiosDiv = document.getElementById('liquidity-ratios');
+
+                resultSection.classList.remove('hidden');
+                if (storedGrossProfitMargin) {
+                    profitableRatiosDiv.innerHTML += `<p><strong>Gross Profit Margin 2023:</strong> ${storedGrossProfitMargin} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="gross_profit_margin_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }
+                if (storedOperatingProfitMargin) {
+                    profitableRatiosDiv.innerHTML += `<p><strong>Operating Profit Margin 2023:</strong> ${storedOperatingProfitMargin} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="operating_profit_margin_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }
+                if (storedNetIncomeMargin) {
+                    profitableRatiosDiv.innerHTML += `<p><strong>Net Income Margin 2023:</strong> ${storedNetIncomeMargin} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="net_income_margin_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }
+                if (storedDebtToAssets) {
+                    leverageRatiosDiv.innerHTML += `<p><strong>Debt to Assets Ratio 2023:</strong> ${storedDebtToAssets} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="debt_to_assets_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }
+                if (storedDebtToEquity) {
+                    leverageRatiosDiv.innerHTML += `<p><strong>Debt to Equity Ratio 2023:</strong> ${storedDebtToEquity} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="debt_to_equity_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }
+             
+                if (storedAccountsReceivableTurnover) {
+                    EfficiencyRatiosDiv.innerHTML += `<p><strong>Accounts Receivable Turnover Ratio 2023:</strong> ${storedAccountsReceivableTurnover} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="receivable-turnover-info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }
+
+                if (storedAssetTurnover) {
+                    EfficiencyRatiosDiv.innerHTML += `<p><strong>Asset Turnover Ratio 2023:</strong> ${storedAssetTurnover} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="asset-turnover-info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }
+
+                if (storedCashRatio) {
+                    liquidityRatiosDiv.innerHTML += `<p><strong>Cash Ratio 2023:</strong> ${storedCashRatio} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="cash_ratio_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }
+
+                if (storedCurrentRatio) {
+                    liquidityRatiosDiv.innerHTML += `<p><strong>Current Ratio 2023:</strong> ${storedCurrentRatio} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="current_ratio_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }
+
+                if (storedQuickRatio) {
+                    liquidityRatiosDiv.innerHTML += `<p><strong>Quick Ratio (Acid-Test Ratio) 2023:</strong> ${storedQuickRatio} <a style="color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="quick-ratio-info.html" class="help-link" target="_blank">Help with Decision Making</a></p>`;
+                }            
+            }
+        });
+
+        const incomeFileInput = document.getElementById('income-file-input');
+        const balanceFileInput = document.getElementById('balance-file-input');
+        const nextButton = document.getElementById('next-button');
+        const resultSection = document.getElementById('result-section');
+        const profitableRatiosDiv = document.getElementById('profitable-ratios');
+        const leverageRatiosDiv = document.getElementById('leverage-ratios');
+      
+        const EfficiencyRatiosDiv = document.getElementById('efficiency-ratios');
+        const liquidityRatiosDiv = document.getElementById('liquidity-ratios');
+        const resetButton = document.getElementById('reset-button');
+
+        let incomeData = null;
+        let balanceData = null;
+
+
+        incomeFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    incomeData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    checkFiles();
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        balanceFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    balanceData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    checkFiles();
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        function checkFiles() {
+            nextButton.disabled = !(incomeData || balanceData);
+        }
+
+        nextButton.addEventListener('click', () => {
+            if (incomeData || balanceData) {
+                const ratios = calculateRatios(incomeData, balanceData);
+                localStorage.setItem('grossProfitMargin2023', ratios.grossProfitMargin);
+                localStorage.setItem('operatingProfitMargin2023', ratios.operatingProfitMargin);
+                localStorage.setItem('netIncomeMargin2023', ratios.netIncomeMargin);
+                localStorage.setItem('debtToAssets2023', ratios.debtToAssets);
+                localStorage.setItem('debtToEquity2023', ratios.debtToEquity);
+                
+                localStorage.setItem('CashRatio2023', ratios.CashRatio);
+                localStorage.setItem('CurrentRatio2023', ratios.CurrentRatio);
+                localStorage.setItem('QuickRatio2023', ratios.QuickRatio);
+                localStorage.setItem('AccountsReceivableTurnover2023',ratios.AccountsReceivableTurnover);
+                localStorage.setItem('assetTurnover2023',ratios.assetTurnover);
+                displayResults(ratios);
+                resultSection.classList.remove('hidden');
+            }
+        });
+
+        resetButton.addEventListener('click', () => {
+            incomeFileInput.value = "";
+            balanceFileInput.value = "";
+            incomeData = null;
+            balanceData = null;
+            nextButton.disabled = true;
+            resultSection.classList.add('hidden');
+            profitableRatiosDiv.innerHTML = "";
+            leverageRatiosDiv.innerHTML = "";
+        });
+
+        function calculateRatios(incomeData, balanceData) {
+            let grossProfit = 0;
+            let CostOfGoodSold = 0;
+            let operatingIncome = 0;
+            let netIncome = 0;
+            let revenue = 0;
+            let totalLiabilities = 0;
+            let totalAssets = 0;
+            let totalEquity = 0;
+    
+            let acountReceivables2023 = 0;
+            let acountReceivables2022 = 0;
+            let cashAndCashEquivalents = 0;
+            let ChecksUnderCollection = 0;
+            let currentAssets = 0;
+            let currentLiabilities = 0;
+            let Inventory = 0;
+
+
+
+            if (incomeData) {
+                incomeData.forEach(row => {
+                    if (row[0] && typeof row[0] === 'string') {
+                        if (row[0].toLowerCase().includes('cost of good sold')) {
+                            CostOfGoodSold = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('operation income')) {
+                            operatingIncome = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('net income')) {
+                            netIncome = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('total sales')) {
+                            revenue = parseFloat(row[2]) || 0;
+                        }
+                    }
+                });
+            }
+
+            if (balanceData) {
+                balanceData.forEach(row => {
+                    if (row[0] && typeof row[0] === 'string') {
+                        if (row[0].toLowerCase().includes('total liabilities')) {
+                            totalLiabilities = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('total assets')) {
+                            totalAssets = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('total_equity')) {
+                            totalEquity = parseFloat(row[2]) || 0;
+                        }
+                       
+                        if (row[0].toLowerCase().includes('accounts receivables')) {
+                            acountReceivables2023 = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('accounts receivables')) {
+                            acountReceivables2022 = parseFloat(row[1]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('cash and cash equivalents')) {
+                            cashAndCashEquivalents = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('checks under collection')) {
+                            ChecksUnderCollection = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('total current assets')) {
+                            currentAssets = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('total current liabilities')) {
+                            currentLiabilities = parseFloat(row[2]) || 0;
+                        }
+                        if (row[0].toLowerCase().includes('inventory')) {
+                            Inventory = parseFloat(row[2]) || 0;
+                        }
+                      }
+                });
+            }
+
+            const grossProfitMargin = revenue > 0 ? ((revenue - CostOfGoodSold) / revenue) * 100 : 0;
+            const operatingProfitMargin = revenue > 0 ? (operatingIncome / revenue) * 100 : 0;
+            const netIncomeMargin = revenue > 0 ? (netIncome / revenue) * 100 : 0;
+            const debtToAssets = totalAssets > 0 ? (totalLiabilities / totalAssets) * 100 : 0;
+            const debtToEquity = totalEquity > 0 ? (totalLiabilities / totalEquity) * 100 : 0;
+
+  
+            const CashRatio = currentLiabilities > 0 ? cashAndCashEquivalents / currentLiabilities : 0;
+            const CurrentRatio = currentLiabilities > 0 ? currentAssets / currentLiabilities : 0;
+            const QuickRatio = currentLiabilities > 0 ? (currentAssets-Inventory)/currentLiabilities : 0;
+            const AccountsReceivableTurnover = ((acountReceivables2023 + acountReceivables2022) / 2) > 0 ? revenue / ((acountReceivables2023 + acountReceivables2022) / 2) : 0; 
+            const assetTurnover = totalAssets > 0 ? revenue /totalAssets : 0;
+
+            localStorage.setItem('revenue', revenue.toFixed(2));
+            localStorage.setItem('CostOfGoodSold', CostOfGoodSold.toFixed(2));
+            localStorage.setItem('cashAndCashEquivalents', cashAndCashEquivalents.toFixed(2));
+            localStorage.setItem('currentLiabilities', currentLiabilities.toFixed(2))
+
+            return {
+                grossProfitMargin: grossProfitMargin.toFixed(2) + '%',
+                operatingProfitMargin: operatingProfitMargin.toFixed(2) + '%',
+                netIncomeMargin: netIncomeMargin.toFixed(2) + '%',
+                debtToAssets: debtToAssets.toFixed(2) + '%',
+                debtToEquity: debtToEquity.toFixed(2) + '%',
+            
+                
+                CashRatio: CashRatio.toFixed(2),
+                CurrentRatio: CurrentRatio.toFixed(2),
+                QuickRatio: QuickRatio.toFixed(2),
+                AccountsReceivableTurnover: AccountsReceivableTurnover.toFixed(2),
+                assetTurnover: assetTurnover.toFixed(2)
+            };
+        }
+
+        function displayResults(ratios) {
+            profitableRatiosDiv.innerHTML = `
+                <p><strong>Gross Profit Margin:</strong> ${ratios.grossProfitMargin} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="gross_profit_margin_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>
+                <p><strong>Operating Profit Margin:</strong> ${ratios.operatingProfitMargin} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="operating_profit_margin_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>
+                <p><strong>Net Income Margin:</strong> ${ratios.netIncomeMargin} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="net_income_margin_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>
+            `;
+
+            leverageRatiosDiv.innerHTML = `
+                <p><strong>Debt to Assets Ratio:</strong> ${ratios.debtToAssets} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="debt_to_assets_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>
+                <p><strong>Debt to Equity Ratio:</strong> ${ratios.debtToEquity} <a  style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="debt_to_equity_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>
+            `;
+          
+            
+            EfficiencyRatiosDiv.innerHTML = `
+                <p><strong>Accounts Receivable Turnover Ratio:</strong> ${ratios.AccountsReceivableTurnover} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="receivable-turnover-info.html" class="help-link" target="_blank">Help with Decision Making</a></p>
+                <p><strong>Asset Turnover Ratio:</strong> ${ratios.assetTurnover} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="asset-turnover-info.html" class="help-link" target="_blank">Help with Decision Making</a></p>
+            `;
+
+            liquidityRatiosDiv.innerHTML = `
+                <p><strong>Cash Ratio:</strong> ${ratios.CashRatio} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="cash_ratio_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>
+                <p><strong>Current Ratio:</strong> ${ratios.CurrentRatio} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="current_ratio_info.html" class="help-link" target="_blank">Help with Decision Making</a></p>
+                <p><strong>Quick Ratio (Acid-Test Ratio):</strong> ${ratios.QuickRatio} <a style="            color: #3498db;
+            text-decoration: none;
+            margin-left: 10px;" href="quick-ratio-info.html" class="help-link" target="_blank">Help with Decision Making</a></p>            
+            `;
+        }
+
+        const collapsibleButtons = document.querySelectorAll('.collapsible');
+        collapsibleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('active');
+                const content = button.nextElementSibling;
+                if (content.style.display === 'block') {
+                    content.style.display = 'none';
+                } else {
+                    content.style.display = 'block';
+                }
+            });
+        });
+        
+    </script>
+
+</body>
+</html>
